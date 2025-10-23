@@ -1,11 +1,10 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use App\Http\Controllers\Api\TestController;
-
+use App\Http\Controllers\Api\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,12 +12,14 @@ use App\Http\Controllers\Api\TestController;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
-
 // API Version 1
 Route::prefix('v1')->group(function () {
+
+    // Authentication routes
+    Route::prefix('/auth')->group(function () {
+        Route::post('/register', [AuthController::class, 'register']);
+        Route::post('/login', [AuthController::class, 'login']);
+    });
 
     // Public routes
     Route::prefix('/test')->group(function () {
@@ -27,6 +28,15 @@ Route::prefix('v1')->group(function () {
         Route::get('/bad-request', [TestController::class, 'testBadRequest']);
         Route::get('/not-found', [TestController::class, 'testNotFound']);
         Route::get('/validation', [TestController::class, 'testValidation']);
+    });
+
+    Route::middleware('auth:sanctum')->group(function () {
+        // Auth routes
+        Route::prefix('auth')->group(function () {
+            Route::get('/profile', [AuthController::class, 'profile']);
+            Route::post('/logout', [AuthController::class, 'logout']);
+            Route::post('/logout-all', [AuthController::class, 'logoutAll']);
+        });
     });
 });
 
