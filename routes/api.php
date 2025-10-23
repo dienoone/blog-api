@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use App\Http\Controllers\Api\TestController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\TagController;
 
 /*
@@ -54,6 +55,10 @@ Route::prefix('v1')->group(function () {
             Route::get('/', [TagController::class, 'index']);
             Route::get('/{tag}', [TagController::class, 'show']); // CHANGED: added show route
         });
+
+
+        // Comments routes
+        Route::get('/articles/{articleId}/comments', [CommentController::class, 'index']);
     });
 
     // Protected middlewares
@@ -85,6 +90,13 @@ Route::prefix('v1')->group(function () {
             Route::post('/', [TagController::class, 'store']);
             Route::put('/{tag}', [TagController::class, 'update']);
             Route::delete('/{tag}', [TagController::class, 'destroy']);
+        });
+
+        // Comments routes
+        Route::prefix('/comments')->group(function () {
+            Route::post('/', [CommentController::class, 'store']);
+            Route::put('/{id}', [CommentController::class, 'update']);
+            Route::delete('/{id}', [CommentController::class, 'destroy']);
         });
     });
 });

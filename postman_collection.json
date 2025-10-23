@@ -1039,6 +1039,206 @@
             "description": "Tag management endpoints. Public endpoints for listing/viewing, protected endpoints for create/update/delete."
         },
         {
+            "name": "Comments",
+            "item": [
+                {
+                    "name": "Get Article Comments",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/v1/articles/1/comments?order_by=created_at&order_direction=desc",
+                            "host": ["{{base_url}}"],
+                            "path": ["v1", "articles", "1", "comments"],
+                            "query": [
+                                {
+                                    "key": "order_by",
+                                    "value": "created_at",
+                                    "description": "Order by field (default: created_at)"
+                                },
+                                {
+                                    "key": "order_direction",
+                                    "value": "desc",
+                                    "description": "Order direction: asc or desc"
+                                }
+                            ]
+                        },
+                        "description": "Get all comments for a specific article. Returns top-level comments with nested replies. Public endpoint."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create Comment",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"article_id\": 1,\n    \"content\": \"This is a great article! Very informative.\",\n    \"parent_id\": null\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/v1/comments",
+                            "host": ["{{base_url}}"],
+                            "path": ["v1", "comments"]
+                        },
+                        "description": "Create a new comment or reply. Requires authentication. Fields:\n- article_id (required, must exist)\n- content (required, string, max:1000)\n- parent_id (optional, to reply to another comment)\n\nNote: Comments are set to not approved by default and require moderation."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create Comment Reply",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"article_id\": 1,\n    \"content\": \"Thanks for the comment! I appreciate your feedback.\",\n    \"parent_id\": 1\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/v1/comments",
+                            "host": ["{{base_url}}"],
+                            "path": ["v1", "comments"]
+                        },
+                        "description": "Create a reply to an existing comment. Requires authentication and valid parent_id. The parent comment must belong to the same article."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Comment",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"content\": \"Updated comment text - fixing a typo from my previous comment.\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/v1/comments/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["v1", "comments", "1"]
+                        },
+                        "description": "Update existing comment. Requires authentication and ownership. Only the comment author can update their own comments. Fields:\n- content (required, string, max:1000)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Comment",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/v1/comments/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["v1", "comments", "1"]
+                        },
+                        "description": "Delete comment by ID. Requires authentication and ownership. Only the comment author can delete their own comments. Deleting a parent comment will also delete all nested replies."
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Comment management endpoints. Public endpoints for listing, protected endpoints for create/update/delete."
+        },
+        {
             "name": "Test Endpoints",
             "item": [
                 {
