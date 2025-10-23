@@ -228,6 +228,212 @@
             "description": "Authentication endpoints for user registration, login, profile management, and logout."
         },
         {
+            "name": "Categories",
+            "item": [
+                {
+                    "name": "Get All Categories",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/v1/categories?search=&order_by=name&order_direction=asc&per_page=15",
+                            "host": ["{{base_url}}"],
+                            "path": ["v1", "categories"],
+                            "query": [
+                                {
+                                    "key": "search",
+                                    "value": "",
+                                    "description": "Search by category name"
+                                },
+                                {
+                                    "key": "order_by",
+                                    "value": "name",
+                                    "description": "Order by field (default: name)"
+                                },
+                                {
+                                    "key": "order_direction",
+                                    "value": "asc",
+                                    "description": "Order direction: asc or desc"
+                                },
+                                {
+                                    "key": "per_page",
+                                    "value": "15",
+                                    "description": "Items per page (default: 15)"
+                                }
+                            ]
+                        },
+                        "description": "Get paginated list of categories with optional filters. Public endpoint."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Category by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/v1/categories/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["v1", "categories", "1"]
+                        },
+                        "description": "Get single category by ID or slug. Includes related articles. Public endpoint."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Category by Slug",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/v1/categories/technology",
+                            "host": ["{{base_url}}"],
+                            "path": ["v1", "categories", "technology"]
+                        },
+                        "description": "Get single category by slug. Public endpoint."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create Category",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Technology\",\n    \"slug\": \"technology\",\n    \"description\": \"All about technology and innovation\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/v1/categories",
+                            "host": ["{{base_url}}"],
+                            "path": ["v1", "categories"]
+                        },
+                        "description": "Create a new category. Requires authentication. Fields:\n- name (required, string, max:255)\n- slug (required, string, max:200, unique)\n- description (optional, string, max:1000)\n\nNote: Slug auto-generated from name if not provided."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Category",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Technology & Innovation\",\n    \"description\": \"Updated description for technology category\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/v1/categories/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["v1", "categories", "1"]
+                        },
+                        "description": "Update existing category. Requires authentication. All fields optional:\n- name (string, max:255)\n- slug (string, max:255, unique)\n- description (string, max:1000)\n\nNote: Slug auto-updated from name if name changes and slug not provided."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Category",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/v1/categories/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["v1", "categories", "1"]
+                        },
+                        "description": "Delete category by ID. Requires authentication. Cannot delete category with existing articles."
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Category management endpoints. Public endpoints for listing/viewing, protected endpoints for create/update/delete."
+        },
+        {
             "name": "Test Endpoints",
             "item": [
                 {

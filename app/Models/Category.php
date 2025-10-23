@@ -16,6 +16,8 @@ class Category extends Model
         'description'
     ];
 
+    protected $withCount = ['articles'];
+
     protected static function boot()
     {
         parent::boot();

@@ -9,7 +9,7 @@ abstract class Controller
     /**
      * Success response method
      */
-    protected function successResponse($data, string $message = '', int $code = 200): JsonResponse
+    protected function successResponse($data, string $message = 'success', int $code = 200): JsonResponse
     {
         return response()->json([
             'status' => 'success',
@@ -22,7 +22,7 @@ abstract class Controller
     /**
      * Success response with pagination
      */
-    protected function successResponseWithPagination($data, string $message = ''): JsonResponse
+    protected function successResponseWithPagination($data, string $message = 'success'): JsonResponse
     {
         return response()->json([
             'status' => 'success',
