@@ -12,6 +12,8 @@ class CommentResource extends JsonResource
             'id' => $this->id,
             'content' => $this->content,
             'is_approved' => $this->is_approved,
+            'likes_count' => $this->whenCounted('likes'),
+            'is_liked' => $this->when(isset($this->is_liked), $this->is_liked),
             'user' => new UserResource($this->whenLoaded('user')),
             'replies' => CommentResource::collection($this->whenLoaded('replies')),
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),

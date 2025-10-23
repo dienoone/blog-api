@@ -31,6 +31,7 @@ Route::prefix('v1')->group(function () {
         Route::prefix('/test')->group(function () {
             // Test routes (remove in production)
             Route::get('/success', [TestController::class, 'testSuccess']);
+            Route::get('/auth', [TestController::class, 'testAuth']);
             Route::get('/bad-request', [TestController::class, 'testBadRequest']);
             Route::get('/not-found', [TestController::class, 'testNotFound']);
             Route::get('/validation', [TestController::class, 'testValidation']);
@@ -45,7 +46,7 @@ Route::prefix('v1')->group(function () {
 
         // Articles routes
         Route::prefix('/articles')->group(function () {
-            Route::get('/', [ArticleController::class, 'index']);
+            Route::get('/popular', [ArticleController::class, 'popular']);
             Route::get('/{identifier}', [ArticleController::class, 'show']);
         });
         Route::get('/users/{userId}/articles', [ArticleController::class, 'userArticles']);
@@ -53,7 +54,8 @@ Route::prefix('v1')->group(function () {
         // Tags routes
         Route::prefix('/tags')->group(function () {
             Route::get('/', [TagController::class, 'index']);
-            Route::get('/{tag}', [TagController::class, 'show']); // CHANGED: added show route
+            Route::get('/popular', [TagController::class, 'popular']);
+            Route::get('/{tag}', [TagController::class, 'show']);
         });
 
 
@@ -79,9 +81,11 @@ Route::prefix('v1')->group(function () {
 
         // Articles routes
         Route::prefix('/articles')->group(function () {
+            Route::get('/', [ArticleController::class, 'index']);
             Route::post('/', [ArticleController::class, 'store']);
             Route::put('/{article}', [ArticleController::class, 'update']);
             Route::delete('/{article}', [ArticleController::class, 'destroy']);
+            Route::post('/{article}/like', [ArticleController::class, 'toggleLike']);
         });
 
 
@@ -95,8 +99,9 @@ Route::prefix('v1')->group(function () {
         // Comments routes
         Route::prefix('/comments')->group(function () {
             Route::post('/', [CommentController::class, 'store']);
-            Route::put('/{id}', [CommentController::class, 'update']);
-            Route::delete('/{id}', [CommentController::class, 'destroy']);
+            Route::put('/{comment}', [CommentController::class, 'update']);
+            Route::delete('/{comment}', [CommentController::class, 'destroy']);
+            Route::post('/{comment}/like', [CommentController::class, 'toggleLike']);
         });
     });
 });

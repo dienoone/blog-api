@@ -18,8 +18,20 @@ class CommentService
     throw_if(!$article, NotFoundException::class, 'Article not found');
 
     $query = $article->comments()
+      ->approved()
       ->with(['user', 'replies.user'])
       ->whereNull('parent_id');
+
+    // Add likes count
+    $query->withCount('likes');
+
+    // Check if liked by current user
+    if (Auth::check()) {
+      $query->with(['likes' => function ($q) {
+        $q->where('user_id', Auth::id());
+      }]);
+    }
+
 
     // Order by
     $orderBy = $filters['order_by'] ?? 'created_at';
@@ -90,5 +102,18 @@ class CommentService
     );
 
     $comment->delete();
+  }
+
+  public function toggleLike($id): array
+  {
+    $comment = Comment::find($id);
+    throw_if(!$comment, NotFoundException::class, 'Comment not found');
+
+    $comment->toggleLike();
+
+    return [
+      'is_liked' => $comment->isLikedBy(),
+      'likes_count' => $comment->likes()->count(),
+    ];
   }
 }

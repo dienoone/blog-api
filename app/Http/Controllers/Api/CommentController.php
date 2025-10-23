@@ -48,4 +48,11 @@ class CommentController extends Controller
 
         return $this->successResponse(null, 'Comment deleted successfully');
     }
+
+    public function toggleLike($id): JsonResponse
+    {
+        $result = $this->commentService->toggleLike($id);
+
+        return $this->successResponse($result, 'Like toggled successfully');
+    }
 }

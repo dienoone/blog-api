@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\Likeable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class Article extends Model
 {
-    use HasFactory;
+    use HasFactory, Likeable;
+
     protected $fillable = [
         'title',
         'slug',
@@ -26,6 +28,8 @@ class Article extends Model
         'published_at' => 'datetime',
         'views_count' => 'integer'
     ];
+
+    // protected $withCount = [];
 
     protected static function boot()
     {

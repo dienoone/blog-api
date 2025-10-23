@@ -24,9 +24,9 @@ class LikeSeeder extends Seeder
             foreach ($articlesToLike as $article) {
                 // Using factory here instead of direct creation
                 Like::factory()->create([
-                    'user_id' => $user->id,
                     'likeable_type' => Article::class,
                     'likeable_id' => $article->id,
+                    'user_id' => $user->id,
                 ]);
             }
 
@@ -36,9 +36,9 @@ class LikeSeeder extends Seeder
 
                 foreach ($commentsToLike as $comment) {
                     Like::factory()->create([
-                        'user_id' => $user->id,
                         'likeable_type' => Comment::class,
                         'likeable_id' => $comment->id,
+                        'user_id' => $user->id,
                     ]);
                 }
             }

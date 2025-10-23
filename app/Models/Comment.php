@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\Likeable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Comment extends Model
 {
-    use HasFactory;
+    use HasFactory, Likeable;
 
     protected $fillable = [
         'content',
@@ -17,6 +18,7 @@ class Comment extends Model
         'user_id'
     ];
 
+    protected $withCount = ['likes'];
 
     public function parent()
     {

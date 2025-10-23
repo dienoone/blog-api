@@ -10,18 +10,18 @@ class Like extends Model
     use HasFactory;
 
     protected $fillable = [
-        'likable_id',
-        'likable_type',
+        'likeable_type',
+        'likeable_id',
         'user_id'
     ];
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
 
     public function likable()
     {
         return $this->morphTo();
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

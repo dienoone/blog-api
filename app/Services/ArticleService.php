@@ -5,9 +5,9 @@ namespace App\Services;
 use App\Exceptions\ForbiddenException;
 use App\Exceptions\NotFoundException;
 use App\Models\Article;
-use Auth;
 use DB;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class ArticleService
@@ -16,7 +16,7 @@ class ArticleService
 
   public function getAllArticles(array $filters = [])
   {
-    $query = Article::with(['author', 'category', 'tags']);
+    $query = Article::with(['author', 'category', 'tags', 'likes']);
 
     // Filter by status
     if (!empty($filters['status'])) {
@@ -55,17 +55,35 @@ class ArticleService
       });
     }
 
-    // Add counts
-    $query->withCount(['tags', 'comments']);
+    // Check if liked by current user
+    if (Auth::check()) {
+      $query->with(['likes' => function ($q) {
+        $q->where('user_id', Auth::id());
+      }]);
+    }
 
     // Order by
     $orderBy = $filters['order_by'] ?? 'created_at';
     $orderDirection = $filters['order_direction'] ?? 'desc';
-    $query->orderBy($orderBy, $orderDirection);
+
+    if ($orderBy === 'popular') {
+      $query->popular();
+    } else {
+      $query->orderBy($orderBy, $orderDirection);
+    }
 
     // Pagination
     $perPage = $filters['per_page'] ?? 15;
     return $query->paginate($perPage);
+  }
+
+  public function getPopularArticles(int $limit = 10)
+  {
+    return Article::published()
+      ->popular()
+      ->with(['author', 'category'])
+      ->limit($limit)
+      ->get();
   }
 
   public function getArticle($identifier)
@@ -92,7 +110,11 @@ class ArticleService
     }
 
     // Add like status and count
-    $article->loadCount(['tags', 'comments']);
+    $article->loadCount(['tags', 'comments', 'likes']);
+
+    if (Auth::check()) {
+      $article->is_liked = $article->isLikedBy(Auth::user());
+    }
 
     return $article;
   }
@@ -200,6 +222,19 @@ class ArticleService
   {
     $filters['author'] = $userId;
     return $this->getAllArticles($filters);
+  }
+
+  public function toggleLike($id): array
+  {
+    $article = Article::find($id);
+    throw_if(!$article, NotFoundException::class, 'Article not found');
+
+    $article->toggleLike();
+
+    return [
+      'is_liked' => $article->isLikedBy(),
+      'likes_count' => $article->likes()->count(),
+    ];
   }
 
   protected function uploadImage(UploadedFile $image): string

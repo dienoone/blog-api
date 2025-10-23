@@ -66,4 +66,18 @@ class ArticleController extends Controller
 
         return $this->successResponseWithPagination(ArticleResource::collection($articles));
     }
+
+    public function toggleLike($id): JsonResponse
+    {
+        $result = $this->articleService->toggleLike($id);
+
+        return $this->successResponse($result, 'Like toggled successfully');
+    }
+
+    public function popular(): JsonResponse
+    {
+        $articles = $this->articleService->getPopularArticles();
+
+        return $this->successResponse(ArticleResource::collection($articles));
+    }
 }

@@ -17,8 +17,8 @@ class LikeFactory extends Factory
             : Comment::factory()->create()->id;
 
         return [
-            'likable_id' => $likableId,
-            'likable_type' => $likableType,
+            'likeable_type' => $likableType,
+            'likeable_id' => $likableId,
             'user_id' => User::factory(),
         ];
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Auth;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ArticleResource extends JsonResource
@@ -16,7 +17,7 @@ class ArticleResource extends JsonResource
                 $featuredImage = $this->featured_image;
             } else {
                 // Relative path - prepend storage
-                $featuredImage = asset("storage/{$this->featured_image}");
+                $featuredImage = asset('storage/' . $this->featured_image);
             }
         }
 
@@ -30,7 +31,10 @@ class ArticleResource extends JsonResource
             'status' => $this->status,
             'published_at' => $this->published_at?->format('Y-m-d H:i:s'),
             'views_count' => $this->views_count,
+            'likes_count' => $this->whenCounted('likes'),
             'comments_count' => $this->whenCounted('comments'),
+            'tags_count' => $this->whenCounted('tags'),
+            'is_liked' => $this->when(Auth::check(), $this->isLikedBy(Auth::user())),
             'author' => new UserResource($this->whenLoaded('author')),
             'category' => new CategoryResource($this->whenLoaded('category')),
             'tags' => TagResource::collection($this->whenLoaded('tags')),

@@ -27,6 +27,13 @@ class TagController extends Controller
             : $this->successResponse($tags);
     }
 
+    public function popular(): JsonResponse
+    {
+        $tags = $this->tagService->getPopularTags();
+
+        return $this->successResponse(TagResource::collection($tags));
+    }
+
     public function store(StoreTagRequest $request): JsonResponse
     {
         $tag = $this->tagService->createTag($request->validated());
@@ -48,9 +55,6 @@ class TagController extends Controller
         );
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id): JsonResponse
     {
         $this->tagService->deleteTag($id);

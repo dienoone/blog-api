@@ -7,6 +7,7 @@ use App\Exceptions\ValidationException;
 use App\Exceptions\BadRequestException;
 use App\Exceptions\NotFoundException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 
 class TestController extends Controller
 {
@@ -35,5 +36,15 @@ class TestController extends Controller
                 'password' => ['Password is required']
             ]
         );
+    }
+
+    public function testAuth()
+    {
+        // This will show you what's actually happening
+        return $this->successResponse([
+            'check' => Auth::check(),
+            'user' => Auth::user(),
+            'id' => Auth::id(),
+        ]);
     }
 }
