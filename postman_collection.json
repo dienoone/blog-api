@@ -40,9 +40,9 @@
                                 "exec": [
                                     "if (pm.response.code === 201) {",
                                     "    var jsonData = pm.response.json();",
-                                    "    if (jsonData.data && jsonData.data.token) {",
-                                    "        pm.collectionVariables.set('auth_token', jsonData.data.token);",
-                                    "        pm.environment.set('auth_token', jsonData.data.token);",
+                                    "    if (jsonData.data && jsonData.data.access_token) {",
+                                    "        pm.collectionVariables.set('auth_token', jsonData.data.access_token);",
+                                    "        pm.environment.set('auth_token', jsonData.data.access_token);",
                                     "    }",
                                     "}"
                                 ],
@@ -91,10 +91,10 @@
                                 "exec": [
                                     "if (pm.response.code === 200) {",
                                     "    var jsonData = pm.response.json();",
-                                    "    if (jsonData.data && jsonData.data.token) {",
-                                    "        pm.collectionVariables.set('auth_token', jsonData.data.token);",
-                                    "        pm.environment.set('auth_token', jsonData.data.token);",
-                                    "        console.log('Token saved:', jsonData.data.token);",
+                                    "    if (jsonData.data && jsonData.data.access_token) {",
+                                    "        pm.collectionVariables.set('auth_token', jsonData.data.access_token);",
+                                    "        pm.environment.set('auth_token', jsonData.data.access_token);",
+                                    "        console.log('Token saved:', jsonData.data.access_token);",
                                     "    }",
                                     "}"
                                 ],
@@ -432,6 +432,611 @@
                 }
             ],
             "description": "Category management endpoints. Public endpoints for listing/viewing, protected endpoints for create/update/delete."
+        },
+        {
+            "name": "Articles",
+            "item": [
+                {
+                    "name": "Get All Articles",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/v1/articles?status=published&category=&tag=&author=&search=&order_by=created_at&order_direction=desc&per_page=15",
+                            "host": ["{{base_url}}"],
+                            "path": ["v1", "articles"],
+                            "query": [
+                                {
+                                    "key": "status",
+                                    "value": "published",
+                                    "description": "Filter by status: published, draft, archived"
+                                },
+                                {
+                                    "key": "category",
+                                    "value": "",
+                                    "description": "Filter by category ID"
+                                },
+                                {
+                                    "key": "tag",
+                                    "value": "",
+                                    "description": "Filter by tag ID or slug"
+                                },
+                                {
+                                    "key": "author",
+                                    "value": "",
+                                    "description": "Filter by author ID"
+                                },
+                                {
+                                    "key": "search",
+                                    "value": "",
+                                    "description": "Search in title, excerpt, content"
+                                },
+                                {
+                                    "key": "order_by",
+                                    "value": "created_at",
+                                    "description": "Order by field (default: created_at)"
+                                },
+                                {
+                                    "key": "order_direction",
+                                    "value": "desc",
+                                    "description": "Order direction: asc or desc"
+                                },
+                                {
+                                    "key": "per_page",
+                                    "value": "15",
+                                    "description": "Items per page (default: 15)"
+                                }
+                            ]
+                        },
+                        "description": "Get paginated list of articles with optional filters. Public endpoint shows only published articles unless authenticated."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Article by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/v1/articles/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["v1", "articles", "1"]
+                        },
+                        "description": "Get single article by ID or slug. Includes author, category, tags, and approved comments. Increments view count. Public endpoint."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Article by Slug",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/v1/articles/my-first-article",
+                            "host": ["{{base_url}}"],
+                            "path": ["v1", "articles", "my-first-article"]
+                        },
+                        "description": "Get single article by slug. Public endpoint."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get User Articles",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/v1/users/1/articles?status=&per_page=15",
+                            "host": ["{{base_url}}"],
+                            "path": ["v1", "users", "1", "articles"],
+                            "query": [
+                                {
+                                    "key": "status",
+                                    "value": "",
+                                    "description": "Filter by status"
+                                },
+                                {
+                                    "key": "per_page",
+                                    "value": "15",
+                                    "description": "Items per page"
+                                }
+                            ]
+                        },
+                        "description": "Get all articles by specific user. Public endpoint."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create Article (JSON)",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"title\": \"My First Article\",\n    \"excerpt\": \"This is a brief summary of the article\",\n    \"content\": \"This is the full content of the article with detailed information...\",\n    \"category_id\": 1,\n    \"tags\": [\"Laravel\", \"PHP\", \"Web Development\"],\n    \"status\": \"draft\",\n    \"published_at\": null\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/v1/articles",
+                            "host": ["{{base_url}}"],
+                            "path": ["v1", "articles"]
+                        },
+                        "description": "Create a new article (without image). Requires authentication. Fields:\n- title (required, string, max:255)\n- excerpt (optional, string, max:500)\n- content (required, string)\n- category_id (required, exists in categories)\n- tags (optional, array of tag names)\n- status (optional: draft, published, archived - default: draft)\n- published_at (optional, datetime)\n\nNote: Slug auto-generated from title."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create Article (with Image)",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "title",
+                                    "value": "Article with Featured Image",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "excerpt",
+                                    "value": "Brief summary of the article",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "content",
+                                    "value": "Full article content goes here...",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "category_id",
+                                    "value": "1",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "tags[]",
+                                    "value": "Laravel",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "tags[]",
+                                    "value": "PHP",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "featured_image",
+                                    "type": "file",
+                                    "src": []
+                                },
+                                {
+                                    "key": "status",
+                                    "value": "published",
+                                    "type": "text"
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/v1/articles",
+                            "host": ["{{base_url}}"],
+                            "path": ["v1", "articles"]
+                        },
+                        "description": "Create article with featured image upload. Use form-data. Image max 2MB."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Article (JSON)",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"title\": \"Updated Article Title\",\n    \"excerpt\": \"Updated excerpt\",\n    \"content\": \"Updated content...\",\n    \"category_id\": 2,\n    \"tags\": [\"Updated Tag\", \"Another Tag\"],\n    \"status\": \"published\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/v1/articles/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["v1", "articles", "1"]
+                        },
+                        "description": "Update existing article. Requires authentication and ownership. All fields optional:\n- title (string, max:255)\n- excerpt (string, max:500)\n- content (string)\n- category_id (exists in categories)\n- tags (array of tag names)\n- status (draft, published, archived)\n- published_at (datetime)\n\nNote: Only article author can update."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Article (with Image)",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "_method",
+                                    "value": "PUT",
+                                    "type": "text",
+                                    "description": "Laravel method spoofing for file upload"
+                                },
+                                {
+                                    "key": "title",
+                                    "value": "Updated Title",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "featured_image",
+                                    "type": "file",
+                                    "src": []
+                                },
+                                {
+                                    "key": "status",
+                                    "value": "published",
+                                    "type": "text"
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/v1/articles/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["v1", "articles", "1"]
+                        },
+                        "description": "Update article with new featured image. Use POST with _method=PUT for file uploads. Old image will be deleted."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Article",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/v1/articles/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["v1", "articles", "1"]
+                        },
+                        "description": "Delete article by ID. Requires authentication and ownership. Featured image will be deleted from storage. Only article author can delete."
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Article management endpoints. Public endpoints for listing/viewing, protected endpoints for create/update/delete."
+        },
+        {
+            "name": "Tags",
+            "item": [
+                {
+                    "name": "Get All Tags",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/v1/tags?search=&with_count=1&order_by=name&order_direction=asc&per_page=15&all=0",
+                            "host": ["{{base_url}}"],
+                            "path": ["v1", "tags"],
+                            "query": [
+                                {
+                                    "key": "search",
+                                    "value": "",
+                                    "description": "Search by tag name"
+                                },
+                                {
+                                    "key": "with_count",
+                                    "value": "1",
+                                    "description": "Include article count (1 or 0)"
+                                },
+                                {
+                                    "key": "order_by",
+                                    "value": "name",
+                                    "description": "Order by field (default: name)"
+                                },
+                                {
+                                    "key": "order_direction",
+                                    "value": "asc",
+                                    "description": "Order direction: asc or desc"
+                                },
+                                {
+                                    "key": "per_page",
+                                    "value": "15",
+                                    "description": "Items per page (default: 15)"
+                                },
+                                {
+                                    "key": "all",
+                                    "value": "0",
+                                    "description": "Get all tags without pagination (1 or 0)"
+                                }
+                            ]
+                        },
+                        "description": "Get paginated list of tags with optional filters. Public endpoint."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Tag by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/v1/tags/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["v1", "tags", "1"]
+                        },
+                        "description": "Get single tag by ID or slug. Public endpoint."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Tag by Slug",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/v1/tags/laravel",
+                            "host": ["{{base_url}}"],
+                            "path": ["v1", "tags", "laravel"]
+                        },
+                        "description": "Get single tag by slug. Public endpoint."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create Tag",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Laravel\",\n    \"slug\": \"laravel\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/v1/tags",
+                            "host": ["{{base_url}}"],
+                            "path": ["v1", "tags"]
+                        },
+                        "description": "Create a new tag. Requires authentication. Fields:\n- name (required, string, max:50)\n- slug (optional, string, max:50, unique)\n\nNote: Slug auto-generated from name if not provided."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Tag",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Laravel Framework\",\n    \"slug\": \"laravel-framework\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/v1/tags/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["v1", "tags", "1"]
+                        },
+                        "description": "Update existing tag. Requires authentication. All fields optional:\n- name (string, max:50)\n- slug (string, max:50, unique)\n\nNote: Slug auto-updated from name if name changes and slug not provided."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Tag",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/v1/tags/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["v1", "tags", "1"]
+                        },
+                        "description": "Delete tag by ID. Requires authentication. Tag relationships with articles will be removed."
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Tag management endpoints. Public endpoints for listing/viewing, protected endpoints for create/update/delete."
         },
         {
             "name": "Test Endpoints",

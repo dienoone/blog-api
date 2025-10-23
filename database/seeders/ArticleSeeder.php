@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Category;
 use App\Models\Tag;
 use Illuminate\Database\Seeder;
+use Str;
 
 class ArticleSeeder extends Seeder
 {
@@ -136,7 +137,7 @@ class ArticleSeeder extends Seeder
             $article = Article::firstOrCreate(
                 ['title' => $articleData['title']],
                 array_merge($articleData, [
-                    'slug' => $articleData['title'],
+                    'slug' => Str::slug($articleData['title']),
                     'author_id' => $users->random()->id,
                     'category_id' => $categories->random()->id,
                 ])

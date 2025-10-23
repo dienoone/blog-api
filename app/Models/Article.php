@@ -51,10 +51,15 @@ class Article extends Model
 
 
                 // Ensure unique slug
-                $originalSlug = $article->slug;
-                $count = 1;
-                while (static::where('slug', $article->slug)->exists()) {
-                    $article->slug = $originalSlug . '-' . $count++;
+                if ($article->isDirty('slug')) { // ADDED: check if slug changed
+                    $originalSlug = $article->slug;
+                    $count = 1;
+                    while (static::where('slug', $article->slug)
+                        ->where('id', '!=', $article->id) // ADDED: exclude current article
+                        ->exists()
+                    ) {
+                        $article->slug = $originalSlug . '-' . $count++;
+                    }
                 }
             }
         });
@@ -78,5 +83,31 @@ class Article extends Model
     public function comments()
     {
         return $this->hasMany(Comment::class);
+    }
+
+    public function approvedComments()
+    {
+        return $this->hasMany(Comment::class)->where('is_approved', true);
+    }
+
+    public function scopePublished($query)
+    {
+        return $query->where('status', 'published')
+            ->where('published_at', '<=', now());
+    }
+
+    public function scopeDraft($query)
+    {
+        return $query->where('status', 'draft');
+    }
+
+    public function isPublished(): bool
+    {
+        return $this->status === 'published' && $this->published_at <= now();
+    }
+
+    public function incrementViews()
+    {
+        $this->increment('views_count');
     }
 }

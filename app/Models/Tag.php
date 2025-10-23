@@ -15,6 +15,8 @@ class Tag extends Model
         'slug'
     ];
 
+    protected $withCount = ['articles'];
+
     protected static function boot()
     {
         parent::boot();
@@ -28,6 +30,17 @@ class Tag extends Model
         static::updating(function ($tag) {
             if ($tag->isDirty('name') && empty($tag->slug)) {
                 $tag->slug = Str::slug($tag->name);
+            }
+
+            if ($tag->isDirty('slug')) {
+                $originalSlug = $tag->slug;
+                $count = 1;
+                while (static::where('slug', $tag->slug)
+                    ->where('id', '!=', $tag->id)
+                    ->exists()
+                ) {
+                    $tag->slug = $originalSlug . '-' . $count++;
+                }
             }
         });
     }
